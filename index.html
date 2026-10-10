@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>广坊开发组 · 已认证开发者</title>
+    <meta name="description" content="广学五题坊开发组已认证开发者名单" />
+    <link rel="stylesheet" href="./style.css" />
+</head>
+
+<body>
+    <main class="page">
+        <header class="hero">
+            <p class="kicker">广学五题坊</p>
+            <h1>广坊开发组</h1>
+            <p class="sub">已认证开发者名单</p>
+        </header>
+
+        <section id="welcome" class="welcome" hidden>
+            <span class="welcome-text"></span>
+        </section>
+
+        <section class="panel">
+            <div class="panel-head">
+                <h2>开发者列表</h2>
+                <span id="count" class="count">加载中…</span>
+            </div>
+            <ul id="list" class="list"></ul>
+            <p id="empty" class="empty" hidden>还没有人加入，快去成为第一个吧！</p>
+            <p id="error" class="empty error" hidden></p>
+        </section>
+
+        <footer class="foot">
+            <a href="https://github.com/gxwtf/playground" target="_blank" rel="noopener">gxwtf/playground</a>
+            <span class="dot">·</span>
+            <span>想加入？把你自己加进 <code>developers.json</code> 就行</span>
+        </footer>
+    </main>
+
+    <script src="./app.js"></script>
+</body>
+
+</html>

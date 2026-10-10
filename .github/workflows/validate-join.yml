@@ -1,0 +1,113 @@
+name: 校验开发者名单
+
+# 任何人向"非主分支"推送时触发：
+#   - 校验通过 -> 打印欢迎语，并自动合并到 main
+#   - 校验不通过 -> job 失败、不会合并，并自动创建一个中文说明的 Issue
+on:
+  push:
+    branches-ignore: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write # 合并 job 需要推送 main
+  issues: write # 校验失败时需要创建 / 评论 Issue
+
+concurrency:
+  group: validate-join-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    name: 校验名单格式与改动范围
+    runs-on: ubuntu-latest
+    outputs:
+      name: ${{ steps.check.outputs.name }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: 校验 developers.json
+        id: check
+        run: |
+          git fetch origin main
+          if node scripts/validate.mjs --base origin/main --head HEAD --actor "${{ github.actor }}" > result.txt 2>&1; then
+            echo "status=ok" >> "$GITHUB_OUTPUT"
+            echo "name=$(grep -m1 '^@@NEW_NAME=' result.txt | cut -d= -f2-)" >> "$GITHUB_OUTPUT"
+          else
+            echo "status=fail" >> "$GITHUB_OUTPUT"
+          fi
+          cat result.txt
+          cat result.txt >> "$GITHUB_STEP_SUMMARY"
+          grep -q '^@@OK' result.txt
+
+      - name: 校验失败时创建 Issue 说明原因
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs')
+            let detail = ''
+            try { detail = fs.readFileSync('result.txt', 'utf8') } catch (e) { detail = '(未能读取校验输出)' }
+            const actor = context.actor
+            const branch = context.ref.replace('refs/heads/', '')
+            const title = `❌ 加入申请未通过：${actor}`
+            const body = [
+              `**分支**：\`${branch}\``,
+              `**提交**：${context.sha}`,
+              '',
+              '校验没有通过，原因如下：',
+              '',
+              '```',
+              detail.trim() || '(无输出)',
+              '```',
+              '',
+              '请**只修改 `developers.json`**，修好后重新 push 到你的分支即可。详细规则见仓库 README。',
+            ].join('\n')
+
+            const { data: issues } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              per_page: 100,
+            })
+            const hit = issues.find((i) => i.title === title)
+            if (hit) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: hit.number,
+                body,
+              })
+            } else {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title,
+                body,
+              })
+            }
+
+  merge:
+    name: 欢迎并合并到 main
+    needs: validate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: main
+
+      - name: 合并分支（提交信息带欢迎语）
+        run: |
+          git config user.name "gxwtf-bot"
+          git config user.email "bot@gxwtf.cn"
+          git fetch origin "${{ github.ref_name }}"
+          git merge --no-ff --no-edit \
+            -m "chore: 欢迎 ${{ needs.validate.outputs.name }} 加入广坊开发组！" \
+            "origin/${{ github.ref_name }}"
+          git push origin main
