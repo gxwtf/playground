@@ -112,7 +112,7 @@ function parseList(text, label) {
   try {
     data = JSON.parse(text)
   } catch (e) {
-    return { error: `${label} 的文件不是合法的 JSON：${e.message}（常见原因：漏了逗号、用了中文引号、末尾多了逗号）` }
+    return { error: `${label} 不是合法的 JSON：${e.message}（常见原因：漏了逗号、用了中文引号、末尾多了逗号）` }
   }
   if (!Array.isArray(data)) return { error: `${label} 的顶层必须是数组 [ ... ]` }
   return { list: data }
