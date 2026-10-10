@@ -6,7 +6,6 @@
   "description": "广坊新人 Playground：通过把自己加入开发者名单，走完 Vibe Coding 到 Git/PR/Actions/Pages 的完整流程",
   "scripts": {
     "validate": "node scripts/validate.mjs",
-    "preview": "node scripts/preview.mjs",
-    "prepare": "node scripts/install-hooks.mjs"
+    "preview": "node scripts/preview.mjs"
   }
 }

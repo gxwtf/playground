@@ -1,10 +1,5 @@
 name: 校验开发者名单
 
-# 前置约束：本仓库只允许通过 SSH 推送（见仓库内的 .githooks/pre-push 钩子）。
-# 说明：GitHub Actions 的 push 事件 payload 不包含"传输协议"，因此 workflow 本身
-#       无法判断某次 push 是 SSH 还是 HTTPS；"拒绝"发生在 push 那一刻（pre-push 钩子），
-#       非 SSH 的推送根本到不了这里，自然也就不会执行下方的校验与自动合并。
-#
 # 任何人向"非主分支"推送时触发：
 #   - 校验通过 -> 打印欢迎语，并自动合并到 main
 #   - 校验不通过 -> job 失败、不会合并，并自动创建一个中文说明的 Issue
