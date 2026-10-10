@@ -1,0 +1,26 @@
+#!/bin/sh
+# 广坊 Playground：只允许通过 SSH 推送本仓库。
+# 任何 HTTPS / 其它协议的推送都会被拒绝，从而不会进入 GitHub Actions 的校验与自动合并流程。
+#
+# git 会以如下方式调用本钩子：
+#   $1 = remote 名称（如 origin）
+#   $2 = remote 地址（git >= 2.24 才有；旧版本用 git remote get-url 兜底）
+
+remote_name="${1:-origin}"
+remote_url="${2:-$(git remote get-url "$remote_name" 2>/dev/null)}"
+
+case "$remote_url" in
+    git@*:* | ssh://*)
+        exit 0
+        ;;
+esac
+
+echo "" >&2
+echo "❌ 本仓库只允许通过 SSH 推送（当前 remote「$remote_name」的地址是：${remote_url:-未知}）" >&2
+echo "" >&2
+echo "   请改成 SSH 地址后重试：" >&2
+echo "     git remote set-url $remote_name git@github.com:gxwtf/playground.git" >&2
+echo "" >&2
+echo "   HTTPS 推送会被拒绝，不会进入校验与自动合并流程。" >&2
+echo "" >&2
+exit 1

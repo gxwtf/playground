@@ -30,6 +30,8 @@
   - `joinedAt`：加入日期，`YYYY-MM-DD`。
 - ➕ 一次**只能追加你自己的一条记录**，不能删改别人的。
 - 🌿 分支名建议用 `join/<你的GitHub用户名>`。
+- 🔒 **只能用 SSH 推送**：仓库自带 `pre-push` 钩子，用 HTTPS 地址推送会被直接拒绝，也不会进入校验与自动合并流程。拉取代码后运行一次 `npm install`（TRAE 会自动执行）即会启用该钩子；如果你的 remote 是 HTTPS，请改成
+  `git remote set-url origin git@github.com:gxwtf/playground.git`。
 
 > 只要违反上面任意一条，GitHub Actions 就会**拒绝合并**，并自动开一个 Issue 告诉你哪里错了 —— 所以放心大胆地试。
 
@@ -107,6 +109,7 @@ npm run preview   # 然后打开 http://localhost:5173
 | --- | --- | --- |
 | `git: command not found` | 没装 Git | 先完成「广坊 AI 编程教程」里的「安装其它开发工具」一章 |
 | `Permission denied (publickey)` | SSH key 没配好 | 参见教程里的 GitHub / Watt Toolkit 章节，或改用 HTTPS 地址克隆 |
+| push 被拒，提示「本仓库只允许通过 SSH 推送」 | remote 用的是 HTTPS 地址 | 执行 `git remote set-url origin git@github.com:gxwtf/playground.git` 后重试 |
 | 校验提示「检测到被改动的受保护文件」 | 顺手改了别的文件 | 用 `git checkout -- <文件>` 还原，只保留 `developers.json` 的改动 |
 | 校验提示「不是合法的 JSON」 | 漏了逗号、用了中文引号、末尾多了逗号 | 对照 `developers.json` 里已有的记录逐字检查标点（必须是英文 `,` `"`） |
 | 校验提示「github 必须是合法的 GitHub 用户名」 | 用户名写错或带了 `@` | 填纯用户名，例如 `zhangsan`，不要写 `@zhangsan` |
