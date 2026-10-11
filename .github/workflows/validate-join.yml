@@ -101,6 +101,7 @@ jobs:
         with:
           fetch-depth: 0
           ref: main
+          token: ${{ secrets.GXWTF_PAT }}
 
       - name: 合并分支（提交信息带欢迎语）
         run: |
