@@ -101,10 +101,12 @@ jobs:
         with:
           fetch-depth: 0
           ref: main
-          token: ${{ secrets.GXWTF_PAT }}
+          ssh-key: ${{ secrets.GXWTF_DEPLOY_KEY }}
+          persist-credentials: false
 
       - name: 合并分支（提交信息带欢迎语）
         run: |
+          git remote set-url origin git@github.com:${{ github.repository }}.git
           git config user.name "gxwtf-bot"
           git config user.email "bot@gxwtf.cn"
           git fetch origin "${{ github.ref_name }}"
